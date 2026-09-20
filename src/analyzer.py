@@ -1,5 +1,16 @@
 import re
 from email.utils import parseaddr
+from pathlib import Path
+
+import joblib
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+MODEL_PATH = BASE_DIR / "models" / "phishing_model.pkl"
+
+ml_model = joblib.load(MODEL_PATH)
+
+
 # AI Phishing Email Investigator
 # Phase 1: Rule-based phishing detection
 
@@ -117,6 +128,20 @@ def analyze_urls(email_text):
 
     return url_score, url_indicators
 
+def analyze_with_ml(email_text):
+
+    probabilities = ml_model.predict_proba([email_text])[0]
+
+    classes = ml_model.classes_
+
+    phishing_index = list(classes).index("phishing")
+
+    phishing_probability = probabilities[phishing_index]
+
+    prediction = ml_model.predict([email_text])[0]
+
+    return prediction, phishing_probability
+
 
 def analyze_email(sender, email_text):
 
@@ -145,6 +170,27 @@ def analyze_email(sender, email_text):
 
     risk_score += sender_score
     indicators.extend(sender_indicators)
+
+    prediction, phishing_probability = analyze_with_ml(email_text)
+
+    if prediction == "phishing":
+
+        if phishing_probability >= 0.80:
+            ml_points = 25
+
+        elif phishing_probability >= 0.60:
+            ml_points = 15
+
+        else:
+            ml_points = 10
+
+        risk_score += ml_points
+
+        indicators.append(
+            f"ML model classified email as phishing "
+            f"({phishing_probability:.1%} confidence) "
+            f"(+{ml_points})"
+        )
 
     risk_score = min(risk_score, 100)
 
