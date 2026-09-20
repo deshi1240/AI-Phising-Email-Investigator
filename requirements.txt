@@ -1,0 +1,10 @@
+'''The requirement to run this AI tool are as followed:
+
+Pandas 
+scikit-learn
+numpy
+joblib
+beautifulsoup4
+streamlit
+matplotlib
+'''
