@@ -118,7 +118,7 @@ def analyze_urls(email_text):
     return url_score, url_indicators
 
 
-def analyze_email(email_text):
+def analyze_email(sender, email_text):
 
     risk_score = 0
     indicators = []
@@ -141,6 +141,11 @@ def analyze_email(email_text):
 
     indicators.extend(url_indicators)
 
+    sender_score, sender_indicators = analyze_sender(sender)
+
+    risk_score += sender_score
+    indicators.extend(sender_indicators)
+
     risk_score = min(risk_score, 100)
 
     return risk_score, indicators
@@ -158,6 +163,8 @@ def get_risk_level(score):
         return "LOW"
 
 
+sample_sender = "PayPal Security <security@paypa1-security.com>"
+
 sample_email = """
 URGENT!
 
@@ -168,7 +175,7 @@ Click the link below immediately to verify your password.
 http://paypal-security-login.xyz
 """
 
-score, indicators = analyze_email(sample_email)
+score, indicators = analyze_email(sample_sender,sample_email)
 
 risk_level = get_risk_level(score)
 
@@ -177,6 +184,7 @@ print("\n==============================")
 print(" AI PHISHING EMAIL INVESTIGATOR")
 print("==============================")
 
+print(f"\nSender: {sample_sender}")
 print(f"\nRisk Score: {score}/100")
 print(f"Risk Level: {risk_level}")
 
