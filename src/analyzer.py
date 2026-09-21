@@ -209,32 +209,68 @@ def get_risk_level(score):
         return "LOW"
 
 
-sample_sender = "PayPal Security <security@paypa1-security.com>"
+def read_email():
 
-sample_email = """
-URGENT!
+    print("\nPaste the email body below.")
+    print("Type END on a new line when finished.\n")
 
-Your account has been suspended.
+    lines = []
 
-Click the link below immediately to verify your password.
+    while True:
 
-http://paypal-security-login.xyz
-"""
+        line = input()
 
-score, indicators = analyze_email(sample_sender,sample_email)
+        if line.strip().upper() == "END":
+            break
 
-risk_level = get_risk_level(score)
+        lines.append(line)
+
+    return "\n".join(lines)
+
+def main():
+
+    print("\n================================")
+    print(" AI PHISHING EMAIL INVESTIGATOR")
+    print("================================")
+
+    sender = input("\nSender: ").strip()
+
+    email_text = read_email()
+
+    if not email_text.strip():
+
+        print("\nNo email content was provided.")
+        return
+
+    print("\nAnalyzing email...")
+
+    score, indicators = analyze_email(
+        sender,
+        email_text
+    )
+
+    risk_level = get_risk_level(score)
+
+    print("\n================================")
+    print(" ANALYSIS RESULTS")
+    print("================================")
+
+    print(f"\nSender: {sender}")
+
+    print(f"Risk Score: {score}/100")
+    print(f"Risk Level: {risk_level}")
+
+    print("\nIndicators Found:")
+
+    if indicators:
+
+        for indicator in indicators:
+            print(f"[+] {indicator}")
+
+    else:
+
+        print("[-] No suspicious indicators detected.")
 
 
-print("\n==============================")
-print(" AI PHISHING EMAIL INVESTIGATOR")
-print("==============================")
-
-print(f"\nSender: {sample_sender}")
-print(f"\nRisk Score: {score}/100")
-print(f"Risk Level: {risk_level}")
-
-print("\nIndicators Found:")
-
-for indicator in indicators:
-    print(f"[+] {indicator}")
+if __name__ == "__main__":
+    main()
